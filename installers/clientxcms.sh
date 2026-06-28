@@ -239,17 +239,18 @@ download_clientxcms() {
 install_composer_deps() {
   output "Installing Composer dependencies..."
   cd "$INSTALL_DIR"
-  # Retry: dist downloads from GitHub occasionally fail transiently (HTTP 400/429).
+  # Retry with backoff: GitHub dist downloads (codeload) flake intermittently
+  # with HTTP 400/429, sometimes in bursts of several seconds.
   local attempt
-  for attempt in 1 2 3; do
+  for attempt in 1 2 3 4 5; do
     if COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction; then
       success "Composer dependencies installed."
       return
     fi
-    warning "composer install failed (attempt ${attempt}/3), retrying in 5s..."
-    sleep 5
+    warning "composer install failed (attempt ${attempt}/5), retrying in $((attempt * 5))s..."
+    sleep "$((attempt * 5))"
   done
-  error "composer install failed after 3 attempts."
+  error "composer install failed after 5 attempts."
   exit 1
 }
 
@@ -313,13 +314,13 @@ setup_database() {
 build_assets() {
   output "Building front-end assets (npm install + build)..."
   cd "$INSTALL_DIR"
-  # Retry npm install on transient registry/network failures.
+  # Retry with backoff on transient registry/network failures.
   local attempt
-  for attempt in 1 2 3; do
+  for attempt in 1 2 3 4 5; do
     npm install --no-audit --no-fund && break
-    [ "$attempt" = 3 ] && error "npm install failed after 3 attempts." && exit 1
-    warning "npm install failed (attempt ${attempt}/3), retrying in 5s..."
-    sleep 5
+    [ "$attempt" = 5 ] && error "npm install failed after 5 attempts." && exit 1
+    warning "npm install failed (attempt ${attempt}/5), retrying in $((attempt * 5))s..."
+    sleep "$((attempt * 5))"
   done
   npm run build
   success "Assets built."
