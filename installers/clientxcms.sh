@@ -235,6 +235,7 @@ download_clientxcms() {
   output "Downloading ClientXCMS source into $INSTALL_DIR..."
   if [ -d "$INSTALL_DIR/.git" ]; then
     warning "$INSTALL_DIR already contains a git checkout; pulling latest."
+    git config --global --add safe.directory "$INSTALL_DIR" 2>/dev/null || true
     git -C "$INSTALL_DIR" pull --ff-only || true
   else
     mkdir -p "$INSTALL_DIR"

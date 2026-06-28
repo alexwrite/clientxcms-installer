@@ -47,6 +47,9 @@ fi
 
 cd "$INSTALL_DIR"
 
+# The checkout is owned by the web user, but we run as root: tell git it is safe.
+git config --global --add safe.directory "$INSTALL_DIR" 2>/dev/null || true
+
 current_rev=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 output "Updating ClientXCMS in $INSTALL_DIR (current: $current_rev, branch: $CLIENTXCMS_BRANCH)."
 
