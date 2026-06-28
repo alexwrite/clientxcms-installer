@@ -81,8 +81,14 @@ set_env() {
 # --------- Dependency installation --------- #
 
 ubuntu_php_repo() {
-  install_packages "software-properties-common apt-transport-https ca-certificates gnupg lsb-release wget"
-  LC_ALL=C.UTF-8 add-apt-repository -y ppa:ondrej/php
+  install_packages "ca-certificates gnupg lsb-release curl apt-transport-https"
+  # Add the ondrej/php PPA manually. add-apt-repository can hang on the GPG
+  # keyserver or flake on the Launchpad API in some environments; fetching the
+  # signing key over HTTPS and writing the source list is reliable.
+  curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x14aa40ec0831756756d7f66c4f4ea0aae5267a6c" |
+    gpg --dearmor -o /usr/share/keyrings/ondrej-php.gpg
+  echo "deb [signed-by=/usr/share/keyrings/ondrej-php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu $(lsb_release -sc) main" \
+    >/etc/apt/sources.list.d/ondrej-php.list
 }
 
 debian_php_repo() {
