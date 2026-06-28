@@ -24,6 +24,10 @@ if ! fn_exists lib_loaded; then
   ! fn_exists lib_loaded && echo "* ERROR: Could not load lib script" && exit 1
 fi
 
+# composer, git and npm need HOME; it can be unset in headless contexts
+# (systemd unit, cron, CI). Default it so unattended installs work.
+export HOME="${HOME:-/root}"
+
 # ------------------ Variables ----------------- #
 
 FQDN="${FQDN:-localhost}"
