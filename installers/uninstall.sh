@@ -7,8 +7,8 @@ set -e
 # clientxcms-installer - uninstaller module.                               #
 #                                                                           #
 # Removes the ClientXCMS app, its services and (optionally) its database.   #
-# Leaves PHP, MariaDB, Nginx and Redis installed (they may serve other      #
-# sites). NOT affiliated with the official ClientXCMS project.              #
+# By default the stack packages (PHP, MariaDB, Nginx, Redis) are kept; a    #
+# final opt-in step can purge them too. NOT affiliated with ClientXCMS.     #
 #                                                                           #
 #############################################################################
 
@@ -30,7 +30,7 @@ esac
 
 print_brake 70
 warning "This will remove ClientXCMS from $INSTALL_DIR and its services."
-warning "PHP, MariaDB, Nginx and Redis packages are kept."
+warning "Stack packages (PHP, MariaDB, Nginx, Redis) are kept unless you opt to purge at the end."
 print_brake 70
 
 yes_no CONFIRM "Are you sure you want to uninstall ClientXCMS"
@@ -78,6 +78,34 @@ yes_no DROP_FILES "Delete the application directory $INSTALL_DIR"
 if [ "$DROP_FILES" == true ]; then
   rm -rf "$INSTALL_DIR"
   success "Application directory removed."
+fi
+
+# Optionally remove the whole stack (destructive: only on a dedicated host)
+echo ""
+warning "Full purge also removes PHP, MariaDB, Nginx, Redis, Node and Composer,"
+warning "plus the repositories this installer added. Do this only on a host"
+warning "dedicated to ClientXCMS - other sites using these would break."
+yes_no PURGE_STACK "Also REMOVE all stack packages (PHP/MariaDB/Nginx/Redis/Node)"
+if [ "$PURGE_STACK" == true ]; then
+  output "Removing stack packages..."
+  case "$OS" in
+  ubuntu | debian)
+    DEBIAN_FRONTEND=noninteractive apt-get purge -y "php8.3*" mariadb-server mariadb-client \
+      nginx nginx-common redis-server supervisor certbot python3-certbot-nginx nodejs 2>/dev/null || true
+    apt-get autoremove --purge -y 2>/dev/null || true
+    rm -f /etc/apt/sources.list.d/ondrej-php.list /etc/apt/sources.list.d/php.list \
+      /etc/apt/sources.list.d/nodesource.list /usr/share/keyrings/ondrej-php.gpg \
+      /etc/apt/trusted.gpg.d/php.gpg
+    ;;
+  rocky | almalinux)
+    dnf remove -y "php*" mariadb mariadb-server nginx redis supervisor \
+      certbot python3-certbot-nginx nodejs 2>/dev/null || true
+    rm -f /etc/php-fpm.d/clientxcms.conf
+    ;;
+  esac
+  rm -f /usr/local/bin/composer
+  warning "Data dirs (/var/lib/mysql, /var/lib/redis) were kept; remove them by hand if wanted."
+  success "Stack packages removed."
 fi
 
 success "ClientXCMS uninstalled."
