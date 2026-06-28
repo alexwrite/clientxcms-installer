@@ -440,6 +440,9 @@ configure_letsencrypt() {
 
   if [ ! -d "/etc/letsencrypt/live/$FQDN/" ] || [ "$failed" == true ]; then
     warning "Failed to obtain a Let's Encrypt certificate. The site stays on HTTP."
+    # APP_URL was set to https in anticipation of the cert; revert it so the app
+    # does not generate broken https links on an HTTP-only site.
+    set_env APP_URL "http://$FQDN"
     warning "Once DNS/ports are fixed, re-run: certbot --nginx -d $FQDN"
   else
     systemctl restart nginx
