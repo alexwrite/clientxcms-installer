@@ -12,11 +12,15 @@ set -e
 #                                                                           #
 #############################################################################
 
-# Load the shared library if not already sourced
+# Load the shared library if not already sourced. When this module is run
+# directly (not via install.sh), GITHUB_BASE_URL/GITHUB_SOURCE are unset, so we
+# default them here before building the fallback download URL.
 fn_exists() { declare -F "$1" >/dev/null; }
 if ! fn_exists lib_loaded; then
+  : "${GITHUB_BASE_URL:=https://raw.githubusercontent.com/alexwrite/clientxcms-installer}"
+  : "${GITHUB_SOURCE:=main}"
   # shellcheck source=lib/lib.sh
-  source /tmp/lib.sh || source <(curl -sSL "$GITHUB_BASE_URL/$GITHUB_SOURCE"/lib/lib.sh)
+  source /tmp/lib.sh 2>/dev/null || source <(curl -sSL "$GITHUB_BASE_URL/$GITHUB_SOURCE/lib/lib.sh")
   ! fn_exists lib_loaded && echo "* ERROR: Could not load lib script" && exit 1
 fi
 
