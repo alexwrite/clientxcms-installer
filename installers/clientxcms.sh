@@ -239,8 +239,18 @@ download_clientxcms() {
 install_composer_deps() {
   output "Installing Composer dependencies..."
   cd "$INSTALL_DIR"
-  COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction
-  success "Composer dependencies installed."
+  # Retry: dist downloads from GitHub occasionally fail transiently (HTTP 400/429).
+  local attempt
+  for attempt in 1 2 3; do
+    if COMPOSER_ALLOW_SUPERUSER=1 composer install --no-dev --optimize-autoloader --no-interaction; then
+      success "Composer dependencies installed."
+      return
+    fi
+    warning "composer install failed (attempt ${attempt}/3), retrying in 5s..."
+    sleep 5
+  done
+  error "composer install failed after 3 attempts."
+  exit 1
 }
 
 # --------- Environment --------- #
@@ -303,7 +313,14 @@ setup_database() {
 build_assets() {
   output "Building front-end assets (npm install + build)..."
   cd "$INSTALL_DIR"
-  npm install --no-audit --no-fund
+  # Retry npm install on transient registry/network failures.
+  local attempt
+  for attempt in 1 2 3; do
+    npm install --no-audit --no-fund && break
+    [ "$attempt" = 3 ] && error "npm install failed after 3 attempts." && exit 1
+    warning "npm install failed (attempt ${attempt}/3), retrying in 5s..."
+    sleep 5
+  done
   npm run build
   success "Assets built."
 }
