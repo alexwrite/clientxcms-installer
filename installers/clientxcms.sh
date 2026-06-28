@@ -85,8 +85,9 @@ ubuntu_php_repo() {
   # Add the ondrej/php PPA manually. add-apt-repository can hang on the GPG
   # keyserver or flake on the Launchpad API in some environments; fetching the
   # signing key over HTTPS and writing the source list is reliable.
+  # --batch --no-tty: gpg must not touch /dev/tty in headless contexts (systemd/CI).
   curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x14aa40ec0831756756d7f66c4f4ea0aae5267a6c" |
-    gpg --dearmor -o /usr/share/keyrings/ondrej-php.gpg
+    gpg --batch --no-tty --dearmor -o /usr/share/keyrings/ondrej-php.gpg
   echo "deb [signed-by=/usr/share/keyrings/ondrej-php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu $(lsb_release -sc) main" \
     >/etc/apt/sources.list.d/ondrej-php.list
 }
