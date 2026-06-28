@@ -28,6 +28,11 @@ fi
 # (systemd unit, cron, CI). Default it so unattended installs work.
 export HOME="${HOME:-/root}"
 
+# Run from a directory guaranteed to exist. The caller's cwd may have been
+# deleted (e.g. running uninstall then re-install from inside $INSTALL_DIR),
+# which otherwise breaks apt, git and every command with "getcwd() failed".
+cd / || exit 1
+
 # ------------------ Variables ----------------- #
 
 FQDN="${FQDN:-localhost}"
