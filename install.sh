@@ -42,7 +42,13 @@ execute() {
 
   [[ "$1" == *"canary"* ]] && export GITHUB_SOURCE="main" && export SCRIPT_RELEASE="canary"
   update_lib_source
-  run_ui "${1//_canary/}" |& tee -a "$LOG_PATH"
+  local action="${1//_canary/}"
+  # Uninstall has no interactive UI layer; run the installer module directly.
+  if [ "$action" == "uninstall" ]; then
+    run_installer uninstall |& tee -a "$LOG_PATH"
+  else
+    run_ui "$action" |& tee -a "$LOG_PATH"
+  fi
 }
 
 welcome
