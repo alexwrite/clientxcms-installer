@@ -90,7 +90,7 @@ ubuntu_php_repo() {
   local k
   for k in 4F4EA0AAE5267A6C 71DAEAAB4AD4CAB6; do
     curl -fsSL "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x${k}"
-  done | gpg --batch --no-tty --dearmor -o /usr/share/keyrings/ondrej-php.gpg
+  done | gpg --batch --yes --no-tty --dearmor -o /usr/share/keyrings/ondrej-php.gpg
   echo "deb [signed-by=/usr/share/keyrings/ondrej-php.gpg] https://ppa.launchpadcontent.net/ondrej/php/ubuntu $(lsb_release -sc) main" \
     >/etc/apt/sources.list.d/ondrej-php.list
 }
