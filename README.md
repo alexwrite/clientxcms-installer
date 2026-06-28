@@ -83,6 +83,21 @@ installs or forks):
 | `PHP_VERSION` | `8.3` | PHP version |
 | `NODE_VERSION` | `20` | Node.js major version |
 
+## Update
+
+Update an existing install to the latest ClientXCMS version. Run the entrypoint
+and pick the update option, or directly:
+
+```bash
+bash <(curl -sSL https://raw.githubusercontent.com/alexwrite/clientxcms-installer/main/installers/update.sh)
+```
+
+It follows the official upgrade procedure for Git installs: maintenance mode,
+**database backup** (to `storage/backups/`), `git pull`, `composer install`,
+`php artisan migrate --seed` + `clientxcms:db-extension --all`, cache clear,
+`npm run build`, then `php artisan up` and `clientxcms:on-update`. Pass
+`SKIP_BACKUP=true` to skip the backup.
+
 ## Uninstall
 
 Run the entrypoint and pick the uninstall option, or directly:
