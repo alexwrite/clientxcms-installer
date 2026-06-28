@@ -367,7 +367,8 @@ esac
 
 case "$OS" in
 ubuntu)
-  [ "$OS_VER_MAJOR" == "20" ] && SUPPORTED=true
+  # 20.04 (focal) is intentionally excluded: ondrej/php no longer builds PHP for
+  # focal, and Ubuntu only ships PHP 7.4 there, so PHP 8.3 is unobtainable.
   [ "$OS_VER_MAJOR" == "22" ] && SUPPORTED=true
   [ "$OS_VER_MAJOR" == "24" ] && SUPPORTED=true
   export DEBIAN_FRONTEND=noninteractive

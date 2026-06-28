@@ -34,7 +34,7 @@ questions, print a summary, and then install everything.
 
 | Distribution | Versions |
 |--------------|----------|
-| Ubuntu | 20.04, 22.04, 24.04 |
+| Ubuntu | 22.04, 24.04 |
 | Debian | 11, 12, 13 |
 | Rocky Linux / AlmaLinux | 8, 9 |
 
