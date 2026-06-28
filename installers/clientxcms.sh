@@ -138,6 +138,12 @@ dep_install() {
     install_packages "https://rpms.remirepo.net/enterprise/remi-release-${OS_VER_MAJOR}.rpm"
     dnf module reset -y php
     dnf module enable -y "php:remi-${PHP_VERSION}"
+    # EL8 defaults to MariaDB 10.3, which is too old for ClientXCMS (needs
+    # 10.11+). Switch to the 10.11 module stream (EL9 already ships 10.5+).
+    if [ "$OS_VER_MAJOR" == "8" ]; then
+      dnf module reset -y mariadb
+      dnf module enable -y mariadb:10.11
+    fi
     setup_node_repo
 
     php_pkgs="php php-{cli,fpm,common,bcmath,curl,gd,intl,mbstring,mysqlnd,xml,zip,opcache}"
