@@ -342,7 +342,13 @@ set_permissions() {
 insert_cronjob() {
   output "Installing the scheduler cron job..."
   local cron_line="* * * * * php $INSTALL_DIR/artisan schedule:run >> /dev/null 2>&1"
-  ( crontab -u "$WEBUSER" -l 2>/dev/null | grep -v -F "$INSTALL_DIR/artisan schedule:run"; echo "$cron_line" ) | crontab -u "$WEBUSER" -
+  # `|| true` is required: with no existing crontab, `crontab -l` exits non-zero,
+  # and `grep -v` exits 1 when it filters every line. Under `set -e` that would
+  # abort before the echo and install an empty crontab (no scheduler line).
+  {
+    crontab -u "$WEBUSER" -l 2>/dev/null | grep -v -F "$INSTALL_DIR/artisan schedule:run" || true
+    echo "$cron_line"
+  } | crontab -u "$WEBUSER" -
   success "Cron job installed."
 }
 
