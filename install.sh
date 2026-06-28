@@ -43,9 +43,9 @@ execute() {
   [[ "$1" == *"canary"* ]] && export GITHUB_SOURCE="main" && export SCRIPT_RELEASE="canary"
   update_lib_source
   local action="${1//_canary/}"
-  # Uninstall has no interactive UI layer; run the installer module directly.
-  if [ "$action" == "uninstall" ]; then
-    run_installer uninstall |& tee -a "$LOG_PATH"
+  # Uninstall and update have no interactive UI layer; run the module directly.
+  if [ "$action" == "uninstall" ] || [ "$action" == "update" ]; then
+    run_installer "$action" |& tee -a "$LOG_PATH"
   else
     run_ui "$action" |& tee -a "$LOG_PATH"
   fi
@@ -57,12 +57,14 @@ done=false
 while [ "$done" == false ]; do
   options=(
     "Install ClientXCMS (full stack: PHP, MariaDB, Nginx, assets)"
+    "Update ClientXCMS to the latest version"
     "Uninstall ClientXCMS"
     "Install ClientXCMS using the canary script (main branch, may be unstable)"
   )
 
   actions=(
     "clientxcms"
+    "update"
     "uninstall"
     "clientxcms_canary"
   )

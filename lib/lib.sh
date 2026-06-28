@@ -238,6 +238,15 @@ mariadb_cli() {
   fi
 }
 
+# Dump tool: `mariadb-dump` on 10.4+, `mysqldump` on older versions.
+mariadb_dump() {
+  if command -v mariadb-dump >/dev/null 2>&1; then
+    command mariadb-dump "$@"
+  else
+    command mysqldump "$@"
+  fi
+}
+
 create_db_user() {
   local db_user_name="$1"
   local db_user_password="$2"
