@@ -1,0 +1,19 @@
+# ClientXCMS queue worker
+# Installed by clientxcms-installer. Placeholders <user>, <php_bin> and
+# <install_dir> are replaced at install time.
+
+[Unit]
+Description=ClientXCMS Queue Worker
+After=network.target mariadb.service redis-server.service redis.service
+
+[Service]
+User=<user>
+Group=<user>
+Restart=always
+RestartSec=5s
+ExecStart=<php_bin> <install_dir>/artisan queue:work --sleep=3 --tries=3 --timeout=90
+StartLimitInterval=180
+StartLimitBurst=30
+
+[Install]
+WantedBy=multi-user.target
