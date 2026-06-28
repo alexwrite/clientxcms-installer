@@ -479,8 +479,9 @@ final_message() {
   [ "$CONFIGURE_WORKER" == true ] && output "  Queue worker : systemctl status clientxcms-worker"
   output ""
   # Print the password to the real terminal only, never to the teed log file.
+  # /dev/tty can exist but be unwritable under systemd/cron; never let it abort.
   if [ -e /dev/tty ]; then
-    printf '*   DB password  : %s\n' "$MYSQL_PASSWORD" >/dev/tty
+    printf '*   DB password  : %s\n' "$MYSQL_PASSWORD" >/dev/tty 2>/dev/null || true
   fi
   warning "The database password is also stored in $INSTALL_DIR/.env (chmod 640)."
   print_brake 70
