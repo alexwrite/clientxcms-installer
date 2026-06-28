@@ -65,10 +65,10 @@ if [ "$DROP_DB" == true ]; then
   required_input DB_USER "Database user to drop [clientxcms]: " "" "clientxcms"
   # DB_NAME / DB_USER are assigned just above by required_input via eval.
   # shellcheck disable=SC2153
-  mariadb -u root -e "DROP DATABASE IF EXISTS $DB_NAME;"
-  mariadb -u root -e "DROP USER IF EXISTS '$DB_USER'@'localhost';"
-  mariadb -u root -e "DROP USER IF EXISTS '$DB_USER'@'127.0.0.1';"
-  mariadb -u root -e "FLUSH PRIVILEGES;"
+  mariadb_cli -u root -e "DROP DATABASE IF EXISTS $DB_NAME;"
+  mariadb_cli -u root -e "DROP USER IF EXISTS '$DB_USER'@'localhost';"
+  mariadb_cli -u root -e "DROP USER IF EXISTS '$DB_USER'@'127.0.0.1';"
+  mariadb_cli -u root -e "FLUSH PRIVILEGES;"
   success "Database and user dropped."
 fi
 

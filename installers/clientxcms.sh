@@ -163,13 +163,13 @@ dep_install() {
 }
 
 # Non-interactive equivalent of mysql_secure_installation: drop anonymous users
-# and the test database. Root stays on unix_socket auth so `mariadb -u root` works.
+# and the test database. Root stays on unix_socket auth so `mariadb_cli -u root` works.
 harden_mariadb() {
   output "Hardening MariaDB (anonymous users, test database)..."
-  mariadb -u root -e "DROP DATABASE IF EXISTS test;" 2>/dev/null || true
-  mariadb -u root -e "DELETE FROM mysql.global_priv WHERE User='';" 2>/dev/null ||
-    mariadb -u root -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
-  mariadb -u root -e "FLUSH PRIVILEGES;" 2>/dev/null || true
+  mariadb_cli -u root -e "DROP DATABASE IF EXISTS test;" 2>/dev/null || true
+  mariadb_cli -u root -e "DELETE FROM mysql.global_priv WHERE User='';" 2>/dev/null ||
+    mariadb_cli -u root -e "DELETE FROM mysql.user WHERE User='';" 2>/dev/null || true
+  mariadb_cli -u root -e "FLUSH PRIVILEGES;" 2>/dev/null || true
 }
 
 enable_services() {

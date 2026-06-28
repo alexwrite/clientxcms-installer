@@ -228,14 +228,24 @@ yes_no() {
 
 # -------------------- MySQL ------------------- #
 
+# MariaDB CLI wrapper: the `mariadb` command exists on 10.4+; older versions
+# (MariaDB 10.3 on EL8/AlmaLinux 8) only ship the `mysql` client.
+mariadb_cli() {
+  if command -v mariadb >/dev/null 2>&1; then
+    command mariadb "$@"
+  else
+    command mysql "$@"
+  fi
+}
+
 create_db_user() {
   local db_user_name="$1"
   local db_user_password="$2"
   local db_host="${3:-127.0.0.1}"
 
   output "Creating database user $db_user_name..."
-  mariadb -u root -e "CREATE USER IF NOT EXISTS '$db_user_name'@'$db_host' IDENTIFIED BY '$db_user_password';"
-  mariadb -u root -e "FLUSH PRIVILEGES;"
+  mariadb_cli -u root -e "CREATE USER IF NOT EXISTS '$db_user_name'@'$db_host' IDENTIFIED BY '$db_user_password';"
+  mariadb_cli -u root -e "FLUSH PRIVILEGES;"
   output "Database user $db_user_name created."
 }
 
@@ -245,8 +255,8 @@ grant_all_privileges() {
   local db_host="${3:-127.0.0.1}"
 
   output "Granting privileges on $db_name to $db_user_name..."
-  mariadb -u root -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user_name'@'$db_host' WITH GRANT OPTION;"
-  mariadb -u root -e "FLUSH PRIVILEGES;"
+  mariadb_cli -u root -e "GRANT ALL PRIVILEGES ON $db_name.* TO '$db_user_name'@'$db_host' WITH GRANT OPTION;"
+  mariadb_cli -u root -e "FLUSH PRIVILEGES;"
 }
 
 create_db() {
@@ -255,7 +265,7 @@ create_db() {
   local db_host="${3:-127.0.0.1}"
 
   output "Creating database $db_name..."
-  mariadb -u root -e "CREATE DATABASE IF NOT EXISTS $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+  mariadb_cli -u root -e "CREATE DATABASE IF NOT EXISTS $db_name CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
   grant_all_privileges "$db_name" "$db_user_name" "$db_host"
   output "Database $db_name created."
 }
